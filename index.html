@@ -1,97 +1,290 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<title>Quay video iOS/macOS</title>
-<style>
-  video { width: 100%; max-height: 50vh; background: #000; border-radius: 12px; }
-  button { padding: 8px 12px; margin: 4px; }
-  .rec-time { font-weight: bold; margin-top: 8px; }
-</style>
+  <meta charset="utf-8" />
+  <title>Vòng Quay Trúng Thưởng</title>
+  <style>
+    body {
+      font-family: "Roboto", Arial, sans-serif;
+      text-align: center;
+      background: #fafafa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h1 {
+      font-weight: 500;
+      color: #212121;
+    }
+
+    .controls {
+      margin: 20px 0;
+    }
+
+    label {
+      margin: 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    canvas {
+      width: 400px;
+      height: 400px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      transition: background 0.2s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    button:disabled {
+      background: #90caf9;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Layout chứa vòng quay + power */
+    .wheel-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* --- Power Selector --- */
+    .power {
+      position: absolute;
+      top: 50%;
+      right: -90px;
+      /* cách vòng quay 1 khoảng */
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .power div {
+      width: 80px;
+      height: 45px;
+      line-height: 45px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+      opacity: 0.6;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .power div:hover,
+    .power div.active {
+      transform: scale(1.2);
+      opacity: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .green {
+      background: #43a047;
+    }
+
+    .yellow {
+      background: #fdd835;
+      color: #000;
+    }
+
+    .red {
+      background: #e53935;
+    }
+  </style>
 </head>
+
 <body>
-<h2>📹 Quay Video</h2>
-<video id="preview" autoplay muted></video>
-<div class="rec-time" id="recTime">00:00</div>
-<div>
-  <button id="btnStartRec">⏺️ Bắt đầu</button>
-  <button id="btnStopRec" disabled>⏹️ Dừng</button>
-  <button id="btnDownload" disabled>⬇️ Lưu video</button>
-</div>
+  <h1>Vòng quay trúng thưởng</h1>
 
-<script>
-const preview = document.getElementById('preview');
-const recTime = document.getElementById('recTime');
-const btnStartRec = document.getElementById('btnStartRec');
-const btnStopRec = document.getElementById('btnStopRec');
-const btnDownload = document.getElementById('btnDownload');
+  <div class="controls">
+    <label><input type="radio" name="wheelType" value="nhat" checked> Nhất</label>
+    <label><input type="radio" name="wheelType" value="nhi"> Nhì</label>
+    <label><input type="radio" name="wheelType" value="ba"> Ba</label>
+    <label><input type="radio" name="wheelType" value="khuyen"> KK</label>
+  </div>
 
-let stream = null;
-let recorder = null;
-let chunks = [];
-let timerInterval = null;
-let seconds = 0;
-let videoBlob = null;
+  <!-- Vòng quay + Power -->
+  <div class="wheel-container">
+    <canvas id="wheel" width="500" height="500"></canvas>
 
-// Mở camera
-async function startCamera() {
-  stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  preview.srcObject = stream;
-}
-startCamera();
+    <!-- Thanh Power dọc -->
+    <div class="power" id="powerBar">
+      <div class="green" data-power="3">🍃 Yếu</div>
+      <div class="yellow" data-power="6">⚡ TB</div>
+      <div class="red" data-power="10">🔥 Mạnh</div>
+    </div>
+  </div>
 
-// Format time
-function formatTime(sec) {
-  const m = String(Math.floor(sec/60)).padStart(2,'0');
-  const s = String(sec%60).padStart(2,'0');
-  return `${m}:${s}`;
-}
+  <br>
+  <button id="btnSpin">Quay</button>
+  <div class="result" id="result"></div>
 
-// Bắt đầu quay
-btnStartRec.onclick = () => {
-  if (!stream) return;
-  chunks = [];
-  seconds = 0;
-  recTime.textContent = "00:00";
+  <script>
+    const COLORS = ["#e53935", "#43a047", "#fb8c00", "#1e88e5", "#8e24aa", "#fdd835"];
+    const WHEELS = {
+      nhat: [
+        { label: "50", weight: 34, size: 50, points: 50 },
+        { label: "30", weight: 33, size: 25, points: 30 },
+        { label: "10", weight: 33, size: 25, points: 10 },
+      ],
+      nhi: [
+        { label: "50", weight: 20, size: 30, points: 50 },
+        { label: "30", weight: 40, size: 30, points: 30 },
+        { label: "10", weight: 40, size: 40, points: 10 },
+      ],
+      ba: [
+        { label: "50", weight: 15, size: 20, points: 50 },
+        { label: "30", weight: 35, size: 25, points: 30 },
+        { label: "10", weight: 60, size: 40, points: 10 },
+      ],
+      khuyen: [
+        { label: "50", weight: 5, size: 10, points: 50 },
+        { label: "30", weight: 5, size: 10, points: 30 },
+        { label: "10", weight: 90, size: 80, points: 10 },
+      ],
+    };
 
-  recorder = new MediaRecorder(stream, { mimeType: "video/webm;codecs=vp8,opus" });
-  recorder.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
-  recorder.onstop = () => {
-    videoBlob = new Blob(chunks, { type: "video/webm" });
-    btnDownload.disabled = false;
-  };
+    function pickByWeight(sectors) {
+      const total = sectors.reduce((a, s) => a + s.weight, 0);
+      let r = Math.random() * total;
+      for (const s of sectors) {
+        r -= s.weight;
+        if (r <= 0) return s;
+      }
+      return sectors[sectors.length - 1];
+    }
 
-  recorder.start();
-  btnStartRec.disabled = true;
-  btnStopRec.disabled = false;
+    class Wheel {
+      constructor(canvas) {
+        this.c = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.rotation = 0;
+        this.sectors = [];
+      }
+      setSectors(sectors) {
+        this.sectors = sectors;
+        this.draw();
+      }
+      async spinTo(target, power) {
+        const total = this.sectors.reduce((a, b) => a + b.size, 0);
+        let start = -Math.PI / 2, tStart = 0, tAng = 0;
 
-  timerInterval = setInterval(() => {
-    seconds++;
-    recTime.textContent = formatTime(seconds);
-  }, 1000);
-};
+        // Xác định góc bắt đầu và góc của ô target
+        for (const s of this.sectors) {
+          const ang = (s.size / total) * 2 * Math.PI;
+          if (s === target) { tStart = start; tAng = ang; break; }
+          start += ang;
+        }
 
-// Dừng quay
-btnStopRec.onclick = () => {
-  if (recorder && recorder.state === "recording") recorder.stop();
-  clearInterval(timerInterval);
-  recTime.textContent = formatTime(seconds);
-  btnStartRec.disabled = false;
-  btnStopRec.disabled = true;
-};
+        // Chọn góc ngẫu nhiên hoàn toàn trong ô target (không “né” ô)
+        const desired = tStart + Math.random() * tAng;
 
-// Tạo link download
-btnDownload.onclick = () => {
-  if (!videoBlob) return;
-  const url = URL.createObjectURL(videoBlob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `video_${Date.now()}.webm`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-</script>
+        const pointerAngle = -Math.PI / 2;
+        const spins = 3 + Math.floor(power / 2); // số vòng quay
+        const final = pointerAngle - desired + 2 * Math.PI * spins;
+        const dur = 2000 + power * 200;
+        const startT = performance.now(), init = this.rotation;
+
+        return new Promise(res => {
+          const anim = (t) => {
+            const p = Math.min(1, (t - startT) / dur);
+            const e = 1 - Math.pow(1 - p, 3); // easing cubic
+            this.rotation = init + (final - init) * e;
+            this.draw();
+            if (p < 1) requestAnimationFrame(anim);
+            else {
+              this.rotation = final % (2 * Math.PI);
+              this.draw();
+              res(target);
+            }
+          };
+          requestAnimationFrame(anim);
+        });
+      }
+
+
+      draw() {
+        const ctx = this.ctx, size = this.c.width, cx = size / 2, r = size * 0.42;
+        ctx.clearRect(0, 0, size, size);
+        ctx.save(); ctx.translate(cx, cx); ctx.rotate(this.rotation);
+        let start = -Math.PI / 2, total = this.sectors.reduce((a, b) => a + b.size, 0);
+        this.sectors.forEach((s, i) => {
+          const ang = (s.size / total) * 2 * Math.PI;
+          ctx.beginPath();
+          ctx.fillStyle = COLORS[i % COLORS.length];
+          ctx.moveTo(0, 0); ctx.arc(0, 0, r, start, start + ang); ctx.fill();
+          ctx.save(); ctx.rotate(start + ang / 2);
+          ctx.fillStyle = "#fff"; ctx.font = "20px Roboto"; ctx.textAlign = "center"; ctx.fillText(s.label, r * 0.65, 5);
+          ctx.restore();
+          start += ang;
+        });
+        ctx.restore();
+        // kim
+        ctx.beginPath();
+        ctx.moveTo(cx - 15, 20);
+        ctx.lineTo(cx + 15, 20);
+        ctx.lineTo(cx, 50);
+        ctx.fillStyle = "#212121";
+        ctx.fill();
+      }
+    }
+
+    const wheel = new Wheel(document.getElementById("wheel"));
+    wheel.setSectors(WHEELS["nhat"]);
+    let selected = "nhat";
+    document.querySelectorAll("input[name=wheelType]").forEach(r => {
+      r.onchange = () => { selected = r.value; wheel.setSectors(WHEELS[selected]); };
+    });
+
+    const btn = document.getElementById("btnSpin"), res = document.getElementById("result");
+
+    // Power chọn qua hover
+    let powerValue = 3;
+    const powerBlocks = document.querySelectorAll("#powerBar div");
+    powerBlocks.forEach(block => {
+      block.addEventListener("mouseenter", () => {
+        powerBlocks.forEach(b => b.classList.remove("active"));
+        block.classList.add("active");
+        powerValue = +block.dataset.power;
+      });
+    });
+
+    btn.onclick = async () => {
+      btn.disabled = true; res.textContent = "Đang quay...";
+      const chosen = pickByWeight(WHEELS[selected]);
+      const finalTarget = await wheel.spinTo(chosen, powerValue);
+      res.textContent = `Bạn nhận: ${finalTarget.points} điểm`;
+      btn.disabled = false;
+    };
+  </script>
 </body>
+
 </html>
