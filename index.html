@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <meta charset="utf-8" />
   <title>Vòng Quay Trúng Thưởng</title>
@@ -8,76 +7,84 @@
     body {
       font-family: "Roboto", Arial, sans-serif;
       text-align: center;
-      background: #fafafa;
+      background: radial-gradient(circle at top, #0d0d0d, #1a1a1a);
+      color: #fff;
       margin: 0;
       padding: 40px;
+      overflow-x: hidden;
     }
 
     h1 {
-      font-weight: 500;
-      color: #212121;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8c00;
     }
 
-    .controls {
-      margin: 20px 0;
-    }
-
-    label {
+    .controls label {
       margin: 0 10px;
       font-size: 16px;
       cursor: pointer;
+      color: #fff;
+      text-shadow: 0 0 5px #00ffff;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .controls label:hover {
+      transform: scale(1.1);
+      color: #ff69b4;
     }
 
     canvas {
-      width: 400px;
-      height: 400px;
-      background: #fff;
+      width: 500px;
+      height: 500px;
       border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff inset;
+      background: radial-gradient(circle at center, #222, #000);
+      transition: box-shadow 0.2s;
     }
 
     button {
-      background: #1976d2;
-      color: #fff;
+      background: linear-gradient(45deg, #ff0066, #ffcc00);
+      color: #000;
       border: none;
       padding: 12px 24px;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-      transition: background 0.2s;
+      box-shadow: 0 0 15px #ff0066, 0 0 30px #ffcc00 inset;
+      transition: transform 0.2s, box-shadow 0.2s;
       margin-top: 15px;
     }
 
     button:hover {
-      background: #1565c0;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff inset;
     }
 
     button:disabled {
-      background: #90caf9;
+      background: #444;
+      color: #999;
       cursor: not-allowed;
       box-shadow: none;
     }
 
     .result {
       margin-top: 20px;
-      font-size: 20px;
-      font-weight: 500;
-      color: #333;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ff0, 0 0 20px #f90;
     }
 
-    /* Layout chứa vòng quay + power */
     .wheel-container {
       position: relative;
       display: inline-block;
     }
 
-    /* --- Power Selector --- */
     .power {
       position: absolute;
       top: 50%;
       right: -90px;
-      /* cách vòng quay 1 khoảng */
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
@@ -103,21 +110,13 @@
     .power div.active {
       transform: scale(1.2);
       opacity: 1;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px #00ffff, 0 0 10px #ff00ff inset;
     }
 
-    .green {
-      background: #43a047;
-    }
+    .green { background: #43a047; }
+    .yellow { background: #fdd835; color: #000; }
+    .red { background: #e53935; }
 
-    .yellow {
-      background: #fdd835;
-      color: #000;
-    }
-
-    .red {
-      background: #e53935;
-    }
   </style>
 </head>
 
@@ -131,11 +130,8 @@
     <label><input type="radio" name="wheelType" value="khuyen"> KK</label>
   </div>
 
-  <!-- Vòng quay + Power -->
   <div class="wheel-container">
     <canvas id="wheel" width="500" height="500"></canvas>
-
-    <!-- Thanh Power dọc -->
     <div class="power" id="powerBar">
       <div class="green" data-power="3">🍃 Yếu</div>
       <div class="yellow" data-power="6">⚡ TB</div>
@@ -147,144 +143,105 @@
   <button id="btnSpin">Quay</button>
   <div class="result" id="result"></div>
 
+  <!-- Âm thanh -->
+  <audio id="tickSound" src="https://cdn.jsdelivr.net/gh/anhnongdan/assets/tick.mp3"></audio>
+
   <script>
     const COLORS = ["#e53935", "#43a047", "#fb8c00", "#1e88e5", "#8e24aa", "#fdd835"];
     const WHEELS = {
-      nhat: [
-        { label: "50", weight: 34, size: 50, points: 50 },
-        { label: "30", weight: 33, size: 25, points: 30 },
-        { label: "10", weight: 33, size: 25, points: 10 },
-      ],
-      nhi: [
-        { label: "50", weight: 20, size: 30, points: 50 },
-        { label: "30", weight: 40, size: 30, points: 30 },
-        { label: "10", weight: 40, size: 40, points: 10 },
-      ],
-      ba: [
-        { label: "50", weight: 15, size: 20, points: 50 },
-        { label: "30", weight: 35, size: 30, points: 30 },
-        { label: "10", weight: 60, size: 50, points: 10 },
-      ],
-      khuyen: [
-        { label: "50", weight: 5, size: 10, points: 50 },
-        { label: "30", weight: 5, size: 10, points: 30 },
-        { label: "10", weight: 90, size: 80, points: 10 },
-      ],
+      nhat: [{ label: "50", weight: 34, size: 40, points: 50 },{ label: "30", weight: 33, size: 35, points: 30 },{ label: "10", weight: 33, size: 25, points: 10 }],
+      nhi: [{ label: "50", weight: 20, size: 30, points: 50 },{ label: "30", weight: 40, size: 30, points: 30 },{ label: "10", weight: 40, size: 40, points: 10 }],
+      ba: [{ label: "50", weight: 15, size: 20, points: 50 },{ label: "30", weight: 35, size: 30, points: 30 },{ label: "10", weight: 60, size: 50, points: 10 }],
+      khuyen: [{ label: "50", weight: 5, size: 10, points: 50 },{ label: "30", weight: 5, size: 10, points: 30 },{ label: "10", weight: 90, size: 80, points: 10 }]
     };
 
     function pickByWeight(sectors) {
-      const total = sectors.reduce((a, s) => a + s.weight, 0);
-      let r = Math.random() * total;
-      for (const s of sectors) {
-        r -= s.weight;
-        if (r <= 0) return s;
-      }
-      return sectors[sectors.length - 1];
+      const total = sectors.reduce((a,s)=>a+s.weight,0);
+      let r=Math.random()*total;
+      for(const s of sectors){ r-=s.weight; if(r<=0) return s;}
+      return sectors[sectors.length-1];
     }
 
+    const tickSound = document.getElementById("tickSound");
+
     class Wheel {
-      constructor(canvas) {
-        this.c = canvas;
-        this.ctx = canvas.getContext("2d");
-        this.rotation = 0;
-        this.sectors = [];
+      constructor(canvas){
+        this.c=canvas; this.ctx=canvas.getContext("2d"); this.rotation=0; this.sectors=[];
       }
-      setSectors(sectors) {
-        this.sectors = sectors;
-        this.draw();
-      }
-      async spinTo(target, power) {
-        const total = this.sectors.reduce((a, b) => a + b.size, 0);
-        let start = -Math.PI / 2, tStart = 0, tAng = 0;
-
-        // Xác định góc bắt đầu và góc của ô target
-        for (const s of this.sectors) {
-          const ang = (s.size / total) * 2 * Math.PI;
-          if (s === target) { tStart = start; tAng = ang; break; }
-          start += ang;
-        }
-
-        // Chọn góc ngẫu nhiên hoàn toàn trong ô target (không “né” ô)
-        const desired = tStart + Math.random() * tAng;
-
-        const pointerAngle = -Math.PI / 2;
-        const spins = 3 + Math.floor(power / 2); // số vòng quay
-        const final = pointerAngle - desired + 2 * Math.PI * spins;
-        const dur = 2000 + power * 200;
-        const startT = performance.now(), init = this.rotation;
-
-        return new Promise(res => {
-          const anim = (t) => {
-            const p = Math.min(1, (t - startT) / dur);
-            const e = 1 - Math.pow(1 - p, 3); // easing cubic
-            this.rotation = init + (final - init) * e;
+      setSectors(sectors){ this.sectors=sectors; this.draw(); }
+      async spinTo(target,power){
+        const total=this.sectors.reduce((a,b)=>a+b.size,0);
+        let start=-Math.PI/2,tStart=0,tAng=0;
+        for(const s of this.sectors){ const ang=(s.size/total)*2*Math.PI; if(s===target){ tStart=start; tAng=ang; break;} start+=ang;}
+        const desired=tStart+Math.random()*tAng;
+        const pointerAngle=-Math.PI/2;
+        const spins=3+Math.floor(power/2);
+        const final=pointerAngle-desired+2*Math.PI*spins;
+        const dur=2000+power*200;
+        const startT=performance.now(), init=this.rotation;
+        return new Promise(res=>{
+          const anim=(t)=>{
+            let p=Math.min(1,(t-startT)/dur);
+            let e=1-Math.pow(1-p,3);
+            if(p>0.95){ const shake=Math.sin((p-0.95)*Math.PI*10)*0.05; this.rotation=init+(final-init)*e+shake;} 
+            else{ this.rotation=init+(final-init)*e;}
             this.draw();
-            if (p < 1) requestAnimationFrame(anim);
-            else {
-              this.rotation = final % (2 * Math.PI);
-              this.draw();
-              res(target);
+            const sectorAngle=2*Math.PI/this.sectors.length;
+            const currentSector=Math.floor(((this.rotation%(2*Math.PI))+2*Math.PI)%(2*Math.PI)/sectorAngle);
+            if(!this.lastSector||this.lastSector!==currentSector){
+              this.lastSector=currentSector;
+              tickSound.currentTime=0; tickSound.play();
             }
-          };
+            if(p<1) requestAnimationFrame(anim);
+            else{ this.rotation=final%(2*Math.PI); this.draw(); res(target);}
+          }
           requestAnimationFrame(anim);
         });
       }
 
-
-      draw() {
-        const ctx = this.ctx, size = this.c.width, cx = size / 2, r = size * 0.42;
-        ctx.clearRect(0, 0, size, size);
-        ctx.save(); ctx.translate(cx, cx); ctx.rotate(this.rotation);
-        let start = -Math.PI / 2, total = this.sectors.reduce((a, b) => a + b.size, 0);
-        this.sectors.forEach((s, i) => {
-          const ang = (s.size / total) * 2 * Math.PI;
-          ctx.beginPath();
-          ctx.fillStyle = COLORS[i % COLORS.length];
-          ctx.moveTo(0, 0); ctx.arc(0, 0, r, start, start + ang); ctx.fill();
-          ctx.save(); ctx.rotate(start + ang / 2);
-          ctx.fillStyle = "#fff"; ctx.font = "20px Roboto"; ctx.textAlign = "center"; ctx.fillText(s.label, r * 0.65, 5);
-          ctx.restore();
-          start += ang;
+      draw(){
+        const ctx=this.ctx,size=this.c.width,cx=size/2,r=size*0.42;
+        ctx.clearRect(0,0,size,size);
+        ctx.save(); ctx.translate(cx,cx); ctx.rotate(this.rotation);
+        let start=-Math.PI/2,total=this.sectors.reduce((a,b)=>a+b.size,0);
+        this.sectors.forEach((s,i)=>{
+          const ang=(s.size/total)*2*Math.PI;
+          ctx.beginPath(); ctx.fillStyle=COLORS[i%COLORS.length];
+          ctx.moveTo(0,0); ctx.arc(0,0,r,start,start+ang); ctx.fill();
+          ctx.save(); ctx.rotate(start+ang/2);
+          ctx.fillStyle="#fff"; ctx.font="20px Roboto"; ctx.textAlign="center"; ctx.fillText(s.label,r*0.65,5);
+          ctx.restore(); start+=ang;
         });
         ctx.restore();
         // kim
-        ctx.beginPath();
-        ctx.moveTo(cx - 15, 20);
-        ctx.lineTo(cx + 15, 20);
-        ctx.lineTo(cx, 50);
-        ctx.fillStyle = "#212121";
-        ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx-15,20); ctx.lineTo(cx+15,20); ctx.lineTo(cx,50); ctx.fillStyle="#212121"; ctx.fill();
       }
     }
 
-    const wheel = new Wheel(document.getElementById("wheel"));
+    const wheel=new Wheel(document.getElementById("wheel"));
     wheel.setSectors(WHEELS["nhat"]);
-    let selected = "nhat";
-    document.querySelectorAll("input[name=wheelType]").forEach(r => {
-      r.onchange = () => { selected = r.value; wheel.setSectors(WHEELS[selected]); };
-    });
+    let selected="nhat";
+    document.querySelectorAll("input[name=wheelType]").forEach(r=>{r.onchange=()=>{ selected=r.value; wheel.setSectors(WHEELS[selected]); }});
 
-    const btn = document.getElementById("btnSpin"), res = document.getElementById("result");
-
-    // Power chọn qua hover
-    let powerValue = 3;
-    const powerBlocks = document.querySelectorAll("#powerBar div");
-    powerBlocks.forEach(block => {
-      block.addEventListener("mouseenter", () => {
-        powerBlocks.forEach(b => b.classList.remove("active"));
+    let powerValue=3;
+    const powerBlocks=document.querySelectorAll("#powerBar div");
+    powerBlocks.forEach(block=>{
+      block.addEventListener("mouseenter",()=>{
+        powerBlocks.forEach(b=>b.classList.remove("active"));
         block.classList.add("active");
-        powerValue = +block.dataset.power;
+        powerValue=+block.dataset.power;
       });
     });
 
-    btn.onclick = async () => {
-      btn.disabled = true; res.textContent = "Đang quay...";
-      const chosen = pickByWeight(WHEELS[selected]);
-      const finalTarget = await wheel.spinTo(chosen, powerValue);
-      res.textContent = `Bạn nhận: ${finalTarget.points} điểm`;
-      btn.disabled = false;
+    const btn=document.getElementById("btnSpin"), res=document.getElementById("result");
+
+    btn.onclick=async()=>{
+      btn.disabled=true; res.textContent="Đang quay...";
+      const chosen=pickByWeight(WHEELS[selected]);
+      const finalTarget=await wheel.spinTo(chosen,powerValue);
+      res.textContent=`Bạn nhận: ${finalTarget.points} điểm`;
+      btn.disabled=false;
     };
   </script>
 </body>
-
 </html>
