@@ -1,247 +1,306 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8" />
-  <title>Vòng Quay Trúng Thưởng</title>
+  <title>Vòng Quay Doraemon</title>
   <style>
     body {
-      font-family: "Roboto", Arial, sans-serif;
-      text-align: center;
-      background: radial-gradient(circle at top, #0d0d0d, #1a1a1a);
-      color: #fff;
+      font-family: "Comic Sans MS", "Roboto", sans-serif;
+      background: linear-gradient(to bottom, #a0d8f1, #ffffff);
+      color: #000;
       margin: 0;
       padding: 40px;
-      overflow-x: hidden;
+      text-align: center;
     }
 
+    .main-container {
+      display: flex;
+      gap: 50px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .wheel-container {
+      flex-shrink: 0;
+    }
+
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+
     h1 {
-      font-weight: 700;
-      color: #ffd700;
-      text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8c00;
+      font-size: 36px;
+      color: #ff9800;
+      text-shadow: 2px 2px 5px #fff;
+      margin-bottom: 30px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-right: 20px;
     }
 
     .controls label {
-      margin: 0 10px;
       font-size: 16px;
       cursor: pointer;
-      color: #fff;
-      text-shadow: 0 0 5px #00ffff;
+      color: #039be5;
       transition: transform 0.2s, color 0.2s;
     }
 
     .controls label:hover {
       transform: scale(1.1);
-      color: #ff69b4;
+      color: #f44336;
     }
 
     canvas {
       width: 500px;
       height: 500px;
       border-radius: 50%;
-      box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff inset;
-      background: radial-gradient(circle at center, #222, #000);
+      background: radial-gradient(circle at center, #ffffff, #a0d8f1);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
       transition: box-shadow 0.2s;
     }
 
-    button {
-      background: linear-gradient(45deg, #ff0066, #ffcc00);
-      color: #000;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 0 15px #ff0066, 0 0 30px #ffcc00 inset;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 15px;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff inset;
-    }
-
-    button:disabled {
-      background: #444;
-      color: #999;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .result {
-      margin-top: 20px;
-      font-size: 22px;
-      font-weight: 700;
-      color: #ffd700;
-      text-shadow: 0 0 10px #ff0, 0 0 20px #f90;
-    }
-
-    .wheel-container {
-      position: relative;
-      display: inline-block;
-    }
-
     .power {
-      position: absolute;
-      top: 50%;
-      right: -90px;
-      transform: translateY(-50%);
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       gap: 15px;
     }
 
     .power div {
       width: 80px;
-      height: 45px;
-      line-height: 45px;
-      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 15px;
       cursor: pointer;
       color: #fff;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 14px;
       text-align: center;
-      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
-      opacity: 0.6;
+      transition: transform 0.2s, opacity 0.2s;
+      opacity: 0.8;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      background: #039be5;
+      padding: 5px;
+    }
+
+    .power div img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 5px;
     }
 
     .power div:hover,
     .power div.active {
       transform: scale(1.2);
       opacity: 1;
-      box-shadow: 0 4px 12px #00ffff, 0 0 10px #ff00ff inset;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .green { background: #43a047; }
-    .yellow { background: #fdd835; color: #000; }
-    .red { background: #e53935; }
+    button {
+      background: #039be5;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
 
+    button:hover {
+      transform: scale(1.1);
+      background: #0288d1;
+    }
+
+    button:disabled {
+      background: #ccc;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff9800;
+      text-shadow: 1px 1px 3px #fff;
+    }
+
+    .icon-dorayaki {
+      width: 30px;
+      height: 30px;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    #btnSpin {
+      margin-left: 20px;
+    }
   </style>
 </head>
 
 <body>
-  <h1>Vòng quay trúng thưởng</h1>
 
-  <div class="controls">
-    <label><input type="radio" name="wheelType" value="nhat" checked> Nhất</label>
-    <label><input type="radio" name="wheelType" value="nhi"> Nhì</label>
-    <label><input type="radio" name="wheelType" value="ba"> Ba</label>
-    <label><input type="radio" name="wheelType" value="khuyen"> KK</label>
-  </div>
-
-  <div class="wheel-container">
-    <canvas id="wheel" width="500" height="500"></canvas>
-    <div class="power" id="powerBar">
-      <div class="green" data-power="3">🍃 Yếu</div>
-      <div class="yellow" data-power="6">⚡ TB</div>
-      <div class="red" data-power="10">🔥 Mạnh</div>
+  <div class="main-container">
+    <div class="wheel-container">
+      <canvas id="wheel" width="500" height="500"></canvas>
     </div>
+
+    <div class="right-panel"
+      style="width: 350px; margin-left: 20px; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 15px; background: #f9f9f9; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      <h1>Vòng quay Bánh rán Doraemon</h1>
+
+      <div class="controls" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
+        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhat"
+            checked> Nhất</label>
+        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhi">
+          Nhì</label>
+        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="ba">
+          Ba</label>
+        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType"
+            value="khuyen"> KK</label>
+      </div>
+
+      <div class="power" id="powerBar" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
+        <div class="green" data-power="3"
+          style="flex: 1; background: #4caf50; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+          <img src="./sizuka.png" alt="Shizuka"
+            style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">Yếu
+        </div>
+        <div class="yellow" data-power="6"
+          style="flex: 1; background: #ffeb3b; color: #333; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+          <img src="./suneo.png" alt="Suneo" style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">TB
+        </div>
+        <div class="red" data-power="10"
+          style="flex: 1; background: #f44336; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+          <img src="./chai-en.png" alt="Jaian" style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">⚡
+          Mạnh
+        </div>
+      </div>
+
+      <button id="btnSpin"
+        style="padding: 12px 25px; border: none; border-radius: 8px; background: #2196f3; color: #fff; font-size: 16px; cursor: pointer; transition: background 0.3s;">Quay</button>
+
+      <h3 id="spinResult" style="color: #333; min-height: 24px; margin: 0;"></h3>
+    </div>
+
   </div>
 
-  <br>
-  <button id="btnSpin">Quay</button>
-  <div class="result" id="result"></div>
 
-  <!-- Âm thanh -->
   <audio id="tickSound" src="https://cdn.jsdelivr.net/gh/anhnongdan/assets/tick.mp3"></audio>
 
   <script>
-    const COLORS = ["#e53935", "#43a047", "#fb8c00", "#1e88e5", "#8e24aa", "#fdd835"];
+    const COLORS = ["#f44336", "#ffeb3b", "#039be5", "#f44336", "#ffeb3b", "#039be5"];
     const WHEELS = {
-      nhat: [{ label: "50", weight: 34, size: 40, points: 50 },{ label: "30", weight: 33, size: 35, points: 30 },{ label: "10", weight: 33, size: 25, points: 10 }],
-      nhi: [{ label: "50", weight: 20, size: 30, points: 50 },{ label: "30", weight: 40, size: 30, points: 30 },{ label: "10", weight: 40, size: 40, points: 10 }],
-      ba: [{ label: "50", weight: 15, size: 20, points: 50 },{ label: "30", weight: 35, size: 30, points: 30 },{ label: "10", weight: 60, size: 50, points: 10 }],
-      khuyen: [{ label: "50", weight: 5, size: 10, points: 50 },{ label: "30", weight: 5, size: 10, points: 30 },{ label: "10", weight: 90, size: 80, points: 10 }]
+      nhat: [{ label: "50", weight: 34, size: 40, points: 50 }, { label: "30", weight: 33, size: 35, points: 30 }, { label: "10", weight: 33, size: 25, points: 10 }],
+      nhi: [{ label: "50", weight: 20, size: 30, points: 50 }, { label: "30", weight: 40, size: 30, points: 30 }, { label: "10", weight: 40, size: 40, points: 10 }],
+      ba: [{ label: "50", weight: 15, size: 20, points: 50 }, { label: "30", weight: 35, size: 30, points: 30 }, { label: "10", weight: 60, size: 50, points: 10 }],
+      khuyen: [{ label: "50", weight: 5, size: 10, points: 50 }, { label: "30", weight: 5, size: 10, points: 30 }, { label: "10", weight: 90, size: 80, points: 10 }]
     };
 
     function pickByWeight(sectors) {
-      const total = sectors.reduce((a,s)=>a+s.weight,0);
-      let r=Math.random()*total;
-      for(const s of sectors){ r-=s.weight; if(r<=0) return s;}
-      return sectors[sectors.length-1];
+      const total = sectors.reduce((a, s) => a + s.weight, 0);
+      let r = Math.random() * total;
+      for (const s of sectors) { r -= s.weight; if (r <= 0) return s; }
+      return sectors[sectors.length - 1];
     }
 
     const tickSound = document.getElementById("tickSound");
 
     class Wheel {
-      constructor(canvas){
-        this.c=canvas; this.ctx=canvas.getContext("2d"); this.rotation=0; this.sectors=[];
-      }
-      setSectors(sectors){ this.sectors=sectors; this.draw(); }
-      async spinTo(target,power){
-        const total=this.sectors.reduce((a,b)=>a+b.size,0);
-        let start=-Math.PI/2,tStart=0,tAng=0;
-        for(const s of this.sectors){ const ang=(s.size/total)*2*Math.PI; if(s===target){ tStart=start; tAng=ang; break;} start+=ang;}
-        const desired=tStart+Math.random()*tAng;
-        const pointerAngle=-Math.PI/2;
-        const spins=3+Math.floor(power/2);
-        const final=pointerAngle-desired+2*Math.PI*spins;
-        const dur=2000+power*200;
-        const startT=performance.now(), init=this.rotation;
-        return new Promise(res=>{
-          const anim=(t)=>{
-            let p=Math.min(1,(t-startT)/dur);
-            let e=1-Math.pow(1-p,3);
-            if(p>0.95){ const shake=Math.sin((p-0.95)*Math.PI*10)*0.05; this.rotation=init+(final-init)*e+shake;} 
-            else{ this.rotation=init+(final-init)*e;}
+      constructor(canvas) { this.c = canvas; this.ctx = canvas.getContext("2d"); this.rotation = 0; this.sectors = []; }
+      setSectors(sectors) { this.sectors = sectors; this.draw(); }
+      async spinTo(target, power) {
+        const total = this.sectors.reduce((a, b) => a + b.size, 0);
+        let start = -Math.PI / 2, tStart = 0, tAng = 0;
+        for (const s of this.sectors) { const ang = (s.size / total) * 2 * Math.PI; if (s === target) { tStart = start; tAng = ang; break; } start += ang; }
+        const desired = tStart + Math.random() * tAng;
+        const pointerAngle = -Math.PI / 2;
+        const spins = 3 + Math.floor(power / 2);
+        const final = pointerAngle - desired + 2 * Math.PI * spins;
+        const dur = 2000 + power * 200;
+        const startT = performance.now(), init = this.rotation;
+        return new Promise(res => {
+          const anim = (t) => {
+            let p = Math.min(1, (t - startT) / dur);
+            let e = 1 - Math.pow(1 - p, 3);
+            if (p > 0.95) { const shake = Math.sin((p - 0.95) * Math.PI * 10) * 0.05; this.rotation = init + (final - init) * e + shake; }
+            else { this.rotation = init + (final - init) * e; }
             this.draw();
-            const sectorAngle=2*Math.PI/this.sectors.length;
-            const currentSector=Math.floor(((this.rotation%(2*Math.PI))+2*Math.PI)%(2*Math.PI)/sectorAngle);
-            if(!this.lastSector||this.lastSector!==currentSector){
-              this.lastSector=currentSector;
-              tickSound.currentTime=0; tickSound.play();
+            const sectorAngle = 2 * Math.PI / this.sectors.length;
+            const currentSector = Math.floor(((this.rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / sectorAngle);
+            if (!this.lastSector || this.lastSector !== currentSector) {
+              this.lastSector = currentSector;
+              tickSound.currentTime = 0; tickSound.play();
             }
-            if(p<1) requestAnimationFrame(anim);
-            else{ this.rotation=final%(2*Math.PI); this.draw(); res(target);}
+            if (p < 1) requestAnimationFrame(anim);
+            else { this.rotation = final % (2 * Math.PI); this.draw(); res(target); }
           }
           requestAnimationFrame(anim);
         });
       }
-
-      draw(){
-        const ctx=this.ctx,size=this.c.width,cx=size/2,r=size*0.42;
-        ctx.clearRect(0,0,size,size);
-        ctx.save(); ctx.translate(cx,cx); ctx.rotate(this.rotation);
-        let start=-Math.PI/2,total=this.sectors.reduce((a,b)=>a+b.size,0);
-        this.sectors.forEach((s,i)=>{
-          const ang=(s.size/total)*2*Math.PI;
-          ctx.beginPath(); ctx.fillStyle=COLORS[i%COLORS.length];
-          ctx.moveTo(0,0); ctx.arc(0,0,r,start,start+ang); ctx.fill();
-          ctx.save(); ctx.rotate(start+ang/2);
-          ctx.fillStyle="#fff"; ctx.font="20px Roboto"; ctx.textAlign="center"; ctx.fillText(s.label,r*0.65,5);
-          ctx.restore(); start+=ang;
+      draw() {
+        const ctx = this.ctx, size = this.c.width, cx = size / 2, r = size * 0.42;
+        ctx.clearRect(0, 0, size, size);
+        ctx.save(); ctx.translate(cx, cx); ctx.rotate(this.rotation);
+        let start = -Math.PI / 2, total = this.sectors.reduce((a, b) => a + b.size, 0);
+        this.sectors.forEach((s, i) => {
+          const ang = (s.size / total) * 2 * Math.PI;
+          ctx.beginPath(); ctx.fillStyle = COLORS[i % COLORS.length];
+          ctx.moveTo(0, 0); ctx.arc(0, 0, r, start, start + ang); ctx.fill();
+          ctx.save(); ctx.rotate(start + ang / 2);
+          ctx.fillStyle = "#fff"; ctx.font = "bold 22px Comic Sans MS";
+          ctx.textAlign = "center"; ctx.fillText(s.label, r * 0.65, 5);
+          ctx.restore(); start += ang;
         });
         ctx.restore();
-        // kim
-        ctx.beginPath(); ctx.moveTo(cx-15,20); ctx.lineTo(cx+15,20); ctx.lineTo(cx,50); ctx.fillStyle="#212121"; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx - 15, 20); ctx.lineTo(cx + 15, 20); ctx.lineTo(cx, 50); ctx.fillStyle = "#039be5"; ctx.fill();
       }
     }
 
-    const wheel=new Wheel(document.getElementById("wheel"));
+    const wheel = new Wheel(document.getElementById("wheel"));
     wheel.setSectors(WHEELS["nhat"]);
-    let selected="nhat";
-    document.querySelectorAll("input[name=wheelType]").forEach(r=>{r.onchange=()=>{ selected=r.value; wheel.setSectors(WHEELS[selected]); }});
+    let selected = "nhat";
+    document.querySelectorAll("input[name=wheelType]").forEach(r => { r.onchange = () => { selected = r.value; wheel.setSectors(WHEELS[selected]); } });
 
-    let powerValue=3;
-    const powerBlocks=document.querySelectorAll("#powerBar div");
-    powerBlocks.forEach(block=>{
-      block.addEventListener("mouseenter",()=>{
-        powerBlocks.forEach(b=>b.classList.remove("active"));
+    let powerValue = 3;
+    const powerBlocks = document.querySelectorAll("#powerBar div");
+    powerBlocks.forEach(block => {
+      block.addEventListener("mouseenter", () => {
+        powerBlocks.forEach(b => b.classList.remove("active"));
         block.classList.add("active");
-        powerValue=+block.dataset.power;
+        powerValue = +block.dataset.power;
       });
     });
 
-    const btn=document.getElementById("btnSpin"), res=document.getElementById("result");
+    const btn = document.getElementById("btnSpin");
 
-    btn.onclick=async()=>{
-      btn.disabled=true; res.textContent="Đang quay...";
-      const chosen=pickByWeight(WHEELS[selected]);
-      const finalTarget=await wheel.spinTo(chosen,powerValue);
-      res.textContent=`Bạn nhận: ${finalTarget.points} điểm`;
-      btn.disabled=false;
+    const spinResult = document.getElementById("spinResult");
+    btn.onclick = async () => {
+      btn.disabled = true; spinResult.textContent = "Đang quay...";
+      const chosen = pickByWeight(WHEELS[selected]);
+      const finalTarget = await wheel.spinTo(chosen, powerValue);
+      spinResult.innerHTML = `Bạn nhận: ${finalTarget.points} 
+            <img src="https://magical-tulumba-581427.netlify.app/img-ui/dorayaki.png" 
+                 class="icon-dorayaki" alt="" />`;
+
+      btn.disabled = false;
     };
   </script>
 </body>
+
 </html>
