@@ -355,6 +355,27 @@
                   popup.appendChild(video);
                   document.body.appendChild(popup);
 
+                 } else if(finalTarget.points===30){
+                   const popup = document.createElement("div");
+                  popup.style.position = "fixed";
+                  popup.style.top = "50%";
+                  popup.style.left = "50%";
+                  popup.style.transform = "translate(-50%, -50%)";
+                  popup.style.zIndex = "1000";
+                  popup.style.backgroundColor = "white";
+                  popup.style.padding = "20px";
+                  popup.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+                  const video = document.createElement("video");
+                  video.src = "30.mp4";
+                  video.controls = true;
+                  video.autoplay = true;
+                  video.width = 500;
+                  video.onended = () => {
+                    document.body.removeChild(popup);
+                  };
+                  popup.appendChild(video);
+                  document.body.appendChild(popup);
+
                  }
       btn.disabled = false;
     };
