@@ -61,8 +61,8 @@
     }
 
     canvas {
-      width: 430px;
-      height: 430px;
+      width: 480px;
+      height: 480px;
       border-radius: 50%;
       background: radial-gradient(circle at center, #ffffff, #a0d8f1);
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
@@ -161,34 +161,46 @@
     </div>
 
     <div class="right-panel"
-      style="width: 350px; margin-left: 20px; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 15px; background: #f9f9f9; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-      <h1>Vòng quay Bánh rán Doraemon</h1>
-
-      <div class="controls" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
-        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhat"
-            checked> Nhất</label>
-        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhi">
-          Nhì</label>
-        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="ba">
-          Ba</label>
-        <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType"
-            value="khuyen"> KK</label>
+      style="width: 450px; ;  display: flex; flex-direction: column; align-items: center; gap: 15px; background: #f9f9f9; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      <div style="display: flex;">
+        <h1 style="margin: 0; text-align: center; margin-top: 10px;">Vòng quay Bánh rán</h1>
+        <!-- khi click vào hình doraemon thì sẽ mở nhạc-->
+        <img id="doraemon" src="./doraemon.png" style="width: 80px; height: auto;" alt="">
       </div>
 
-      <div class="power" id="powerBar" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
-        <div class="green" data-power="3"
-          style="flex: 1; background: #4caf50; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
-          <img src="./sizuka.png" alt="Shizuka"
-            style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">Yếu
+      <div style="width: 100%;">
+        <h2 style="margin-top: 0;">Nobita đạt hạng </h2>
+        <div class="controls" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
+          <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhat"
+              checked> Nhất</label>
+          <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="nhi">
+            Nhì</label>
+          <label style="flex: 1; text-align: center; cursor: pointer;"><input type="radio" name="wheelType" value="ba">
+            Ba</label>
+          <label style="flex: 2; text-align: center; cursor: pointer;"><input type="radio" name="wheelType"
+              value="khuyen"> Khuyến khích</label>
         </div>
-        <div class="yellow" data-power="6"
-          style="flex: 1; background: #ffeb3b; color: #333; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
-          <img src="./suneo.png" alt="Suneo" style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">TB
-        </div>
-        <div class="red" data-power="10"
-          style="flex: 1; background: #f44336; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
-          <img src="./chai-en.png" alt="Jaian" style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">⚡
-          Mạnh
+      </div>
+
+      <div>
+        <h2 style="color: orange; margin-top: 0;">Chọn sức mạnh</h2>
+        <div class="power" id="powerBar" style="display: flex; justify-content: space-between; width: 100%; gap: 10px;">
+          <div class="green" data-power="3"
+            style="flex: 1; background: #4caf50; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+            <img src="./sizuka.png" alt="Shizuka"
+              style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">Yếu
+          </div>
+          <div class="yellow" data-power="6"
+            style="flex: 1; background: #ffeb3b; color: #333; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+            <img src="./suneo.png" alt="Suneo"
+              style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">Vừa
+          </div>
+          <div class="red" data-power="10"
+            style="flex: 1; background: #f44336; color: #fff; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer;">
+            <img src="./chai-en.png" alt="Jaian"
+              style="width: 40px; height: 40px; display: block; margin: 0 auto 5px;">⚡
+            Mạnh
+          </div>
         </div>
       </div>
 
@@ -298,8 +310,44 @@
             <img src="https://magical-tulumba-581427.netlify.app/img-ui/dorayaki.png" 
                  class="icon-dorayaki" alt="" />`;
 
+                 if(finalTarget.points===10){
+                  // popup
+                  // play video beg-doraemon.mp4 on pop up 2 second and close
+                  const popup = document.createElement("div");
+                  popup.style.position = "fixed";
+                  popup.style.top = "50%";
+                  popup.style.left = "50%";
+                  popup.style.transform = "translate(-50%, -50%)";
+                  popup.style.zIndex = "1000";
+                  popup.style.backgroundColor = "white";
+                  popup.style.padding = "20px";
+                  popup.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+                  const video = document.createElement("video");
+                  video.src = "beg-doraemon.mp4";
+                  video.controls = true;
+                  video.autoplay = true;
+                  video.onended = () => {
+                    document.body.removeChild(popup);
+                  };
+                  popup.appendChild(video);
+                  document.body.appendChild(popup);
+                 }
       btn.disabled = false;
     };
+    const doraemon = document.getElementById("doraemon");
+    const music = new Audio('./music.mp3');
+
+    // nhấn 1 lần thì mở nhấn lần nữa thì pause
+    doraemon.onclick = () => {
+      if (music.paused) {
+        music.play();
+      } else {
+        music.pause();
+      }
+    };
+
+
+
   </script>
 </body>
 
