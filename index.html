@@ -214,7 +214,7 @@
   </div>
 
 
-  <audio id="tickSound" src="https://cdn.jsdelivr.net/gh/anhnongdan/assets/tick.mp3"></audio>
+  <!-- <audio id="tickSound" src="https://cdn.jsdelivr.net/gh/anhnongdan/assets/tick.mp3"></audio> -->
 
   <script>
     const COLORS = ["#f44336", "#ffeb3b", "#039be5", "#f44336", "#ffeb3b", "#039be5"];
@@ -232,7 +232,7 @@
       return sectors[sectors.length - 1];
     }
 
-    const tickSound = document.getElementById("tickSound");
+    // const tickSound = document.getElementById("tickSound");
 
     class Wheel {
       constructor(canvas) { this.c = canvas; this.ctx = canvas.getContext("2d"); this.rotation = 0; this.sectors = []; }
@@ -258,7 +258,7 @@
             const currentSector = Math.floor(((this.rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / sectorAngle);
             if (!this.lastSector || this.lastSector !== currentSector) {
               this.lastSector = currentSector;
-              tickSound.currentTime = 0; tickSound.play();
+              // tickSound.currentTime = 0; tickSound.play();
             }
             if (p < 1) requestAnimationFrame(anim);
             else { this.rotation = final % (2 * Math.PI); this.draw(); res(target); }
