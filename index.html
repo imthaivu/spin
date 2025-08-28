@@ -208,6 +208,7 @@
         style="padding: 12px 25px; border: none; border-radius: 8px; background: #2196f3; color: #fff; font-size: 16px; cursor: pointer; transition: background 0.3s;">Quay</button>
 
       <h3 id="spinResult" style="color: #333; min-height: 24px; margin: 0;"></h3>
+      <audio id="nobita-cry" src="./music.MP3" style="display: none;"></audio>
     </div>
 
   </div>
@@ -331,11 +332,18 @@
                   };
                   popup.appendChild(video);
                   document.body.appendChild(popup);
+                 } else {
+                  // pháo hoa
+                  launchFireworks();
+                  // audio cdn firework
+                  const audio = new Audio("https://cdn.pixabay.com/audio/2020/05/05/02/36/fireworks-4136630.mp3");
+                  audio.play();
+
                  }
       btn.disabled = false;
     };
     const doraemon = document.getElementById("doraemon");
-    const music = new Audio('./music.mp3');
+    const music = document.getElementById("nobita-cry");
 
     // nhấn 1 lần thì mở nhấn lần nữa thì pause
     doraemon.onclick = () => {
@@ -345,6 +353,74 @@
         music.pause();
       }
     };
+    // pháo hoa
+function launchFireworks() {
+  const fw = document.createElement("canvas");
+  fw.width = window.innerWidth;
+  fw.height = window.innerHeight;
+  fw.style.position = "fixed";
+  fw.style.top = "0";
+  fw.style.left = "50%";
+  fw.style.pointerEvents = "none";
+  fw.style.zIndex = "999";
+  document.body.appendChild(fw);
+
+  const ctx = fw.getContext("2d");
+  const particles = [];
+
+  function Particle(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.radius = Math.random() * 3 + 2;
+    this.vx = (Math.random() - 0.5) * 8;
+    this.vy = (Math.random() - 0.5) * 8;
+    this.alpha = 1;
+  }
+
+  Particle.prototype.update = function () {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.05; // gravity
+    this.alpha -= 0.02;
+  };
+
+  function createExplosion(x, y) {
+    const colors = ["#ff5252", "#ffeb3b", "#4caf50", "#2196f3", "#ff9800", "#e91e63"];
+    for (let i = 0; i < 60; i++) {
+      particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+    }
+  }
+
+  createExplosion(fw.width / 2, fw.height / 2);
+
+  function animate() {
+    ctx.clearRect(0, 0, fw.width, fw.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.update();
+      if (p.alpha <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (particles.length > 0) {
+      requestAnimationFrame(animate);
+    } else {
+      document.body.removeChild(fw);
+    }
+  }
+
+  animate();
+}
+
+
 
 
 
