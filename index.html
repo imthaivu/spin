@@ -326,6 +326,8 @@
                   const video = document.createElement("video");
                   video.src = "beg-doraemon.mp4";
                   video.controls = true;
+                  video.width = 500;
+
                   video.autoplay = true;
                   video.onended = () => {
                     document.body.removeChild(popup);
@@ -346,6 +348,7 @@
                   video.src = "50.mp4";
                   video.controls = true;
                   video.autoplay = true;
+                  video.width = 500;
                   video.onended = () => {
                     document.body.removeChild(popup);
                   };
